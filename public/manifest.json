@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Pomodoro Blocker",
+  "version": "1.0",
+  "description": "A simple Pomodoro timer that blocks specified websites while the timer is running.",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open PomodoroBlocker",
+    "default_icon": {
+      "16": "test.png",
+      "48": "test.png",
+      "128": "test.png"
+    }
+  },
+  "permissions": [
+    "tabs",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ],
+  "host_permissions": ["*://*/*"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "icons": {
+    "16": "test.png",
+    "48": "test.png",
+    "128": "test.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
