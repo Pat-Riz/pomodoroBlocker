@@ -1,21 +1,21 @@
-//@ts-nocheck
 import { useEffect, useState } from "react";
 import "./index.css";
 
 function App() {
-  const [running, setRunning] = useState(false);
-  const [timerValue, setTimerValue] = useState(null);
+  const [running, setRunning] = useState<boolean>(false);
+  const [timerValue, setTimerValue] = useState<string>("25:00");
 
   const requestRemainingTime = async () => {
     chrome.runtime.sendMessage({ action: "getRemainingTime" }, (response) => {
-      if (response.remainingTime) {
-        setTimerValue(response.remainingTime);
+      if (response.timeRemaining && response.timeRemaining >= 0) {
+        setTimerValue(response.timeRemaining);
       }
+      setRunning(response.isTimerRunning);
     });
   };
 
-  useEffect(async () => {
-    await requestRemainingTime();
+  useEffect(() => {
+    requestRemainingTime();
     const port = chrome.runtime.connect({ name: "pomodoroTimer" });
 
     port.onMessage.addListener((message) => {
@@ -43,7 +43,7 @@ function App() {
       action: "start",
       workIntervalMinutes: 25,
       breakIntervalMinutes: 5,
-      blockedWebsites: ["*://*.facebook.com/*", "*://*.twitter.com/*"],
+      blockedWebsites: ["*://*.facebook.com/*"],
     });
   };
 
@@ -60,13 +60,13 @@ function App() {
   };
 
   return (
-    <div className='w-full h-full p-8 flex flex-col items-center justify-center bg-slate-400 text-black'>
+    <div className='w-full h-full p-24 flex flex-col items-center justify-center bg-slate-400 text-black'>
       <div className='text-4xl mb-4'>{timerValue}</div>
       <button
         onClick={toggleTimer}
         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
       >
-        {running ? "STOP" : "START"}
+        {running ? "PAUSE" : "START"}
       </button>
     </div>
   );

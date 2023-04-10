@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -9,10 +8,10 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: "index.html",
-        background: "public/background2.ts",
+        background: "src/backgroundWorker/background.ts",
       },
       output: {
-        entryFileNames: "background2.js",
+        entryFileNames: "[name].js",
       },
     },
   },
