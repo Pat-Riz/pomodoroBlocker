@@ -1,35 +1,53 @@
 import { useEffect, useState } from "react";
+import Settings from "./components/Settings";
+import Timer from "./components/Timer";
+
 import "./index.css";
 
 function App() {
   const [running, setRunning] = useState<boolean>(false);
+  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [timerValue, setTimerValue] = useState<string>("25:00");
+  const [focusTime, setFocusTime] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const requestRemainingTime = async () => {
-    chrome.runtime.sendMessage({ action: "getRemainingTime" }, (response) => {
-      if (response.timeRemaining && response.timeRemaining >= 0) {
-        setTimerValue(response.timeRemaining);
-      }
-      setRunning(response.isTimerRunning);
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    setFocusTime(value);
+
+    if (value === "" || isNaN(Number(value))) {
+      setErrorMessage("Please enter a valid number.");
+    } else {
+      setErrorMessage("");
+    }
   };
 
-  useEffect(() => {
-    requestRemainingTime();
-    const port = chrome.runtime.connect({ name: "pomodoroTimer" });
+  // const requestRemainingTime = async () => {
+  //   chrome.runtime.sendMessage({ action: "getRemainingTime" }, (response) => {
+  //     if (response.timeRemaining && response.timeRemaining >= 0) {
+  //       setTimerValue(response.timeRemaining);
+  //     }
+  //     setRunning(response.isTimerRunning);
+  //   });
+  // };
 
-    port.onMessage.addListener((message) => {
-      if (message.action === "timerUpdate") {
-        setTimerValue(message.timerValue);
-      }
-    });
+  // useEffect(() => {
+  //   requestRemainingTime();
+  //   const port = chrome.runtime.connect({ name: "pomodoroTimer" });
 
-    return () => {
-      port.disconnect();
-    };
-  }, []);
+  //   port.onMessage.addListener((message) => {
+  //     if (message.action === "timerUpdate") {
+  //       setTimerValue(message.timerValue);
+  //     }
+  //   });
 
-  const toggleTimer = () => {
+  //   return () => {
+  //     port.disconnect();
+  //   };
+  // }, []);
+
+  const toggleTimer = (event: React.MouseEvent<HTMLButtonElement>) => {
     setRunning(!running);
     if (!running) {
       startTimer();
@@ -37,6 +55,9 @@ function App() {
       stopTimer();
     }
   };
+
+  const toggleSettings = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setShowSettings(!showSettings);
 
   const startTimer = () => {
     chrome.runtime.sendMessage({
@@ -60,15 +81,18 @@ function App() {
   };
 
   return (
-    <div className='w-full h-full p-24 flex flex-col items-center justify-center bg-slate-400 text-black'>
-      <div className='text-4xl mb-4'>{timerValue}</div>
-      <button
-        onClick={toggleTimer}
-        className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-      >
-        {running ? "PAUSE" : "START"}
-      </button>
-    </div>
+    <>
+      {showSettings ? (
+        <Settings toggleSettings={toggleSettings} />
+      ) : (
+        <Timer
+          timerValue={timerValue}
+          running={running}
+          toggleTimer={toggleTimer}
+          toggleSettings={toggleSettings}
+        />
+      )}
+    </>
   );
 }
 
