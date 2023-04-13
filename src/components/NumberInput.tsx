@@ -20,7 +20,7 @@ const NumberInput = ({ value, error, name, label, handleChange }: Props) => {
         id={name}
         type='number'
         value={value}
-        // onChange={handleChange}
+        onChange={handleChange}
       />
       {error && <p className='text-red-500 text-xs italic mt-1'>{error}</p>}
     </div>

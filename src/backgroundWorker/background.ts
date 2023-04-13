@@ -1,9 +1,14 @@
+import { TimerMessage } from "../types";
+
 let timer: number;
 let timeRemaining: number;
 let isTimerRunning = false;
 let isWorkInterval = true;
 let connectedPort: chrome.runtime.Port | null = null;
 let timeRemainingAfterPause: number | null = null;
+let focusTime: number = 25;
+let breakTime: number = 5;
+let blockedSites: string[] = ["reddit.com"];
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "pomodoroTimer") {
@@ -15,39 +20,58 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "start") {
-    if (!isTimerRunning) {
-      console.log("Starting timer -->", message);
+chrome.runtime.onMessage.addListener(
+  (message: TimerMessage, sender, sendResponse) => {
+    console.log("--> Message recived: ", message);
 
-      startTimer(message.workIntervalMinutes, message.breakIntervalMinutes);
-      updateBlockedWebsites(message.blockedWebsites);
-      timeRemainingAfterPause = null;
+    switch (message.action) {
+      case "start":
+        console.log("Running start");
+        console.log("Timer running:", isTimerRunning);
+
+        if (!isTimerRunning) {
+          startTimer();
+          timeRemainingAfterPause = null;
+        }
+        break;
+      case "stop":
+        if (isTimerRunning) {
+          clearInterval(timer);
+          isTimerRunning = false;
+          timeRemainingAfterPause = timeRemaining;
+          chrome.action.setBadgeText({ text: "" });
+          updateRules();
+        }
+        break;
+      case "getCurrentStatus":
+        sendResponse({
+          timeRemaining: timeRemaining ? formatTime(timeRemaining) : -1,
+          isTimerRunning,
+          focusTime,
+          breakTime,
+          blockedSites,
+        });
+        break;
+      case "updateSettings":
+        focusTime = message.focusTime;
+        breakTime = message.breakTime;
+        updateBlockedSites(message.blockedSites);
+        break;
     }
-  } else if (message.action === "stop") {
-    if (isTimerRunning) {
-      clearInterval(timer);
-      isTimerRunning = false;
-      timeRemainingAfterPause = timeRemaining;
-      chrome.action.setBadgeText({ text: "" });
-    }
-  } else if (message.action === "getRemainingTime") {
-    sendResponse({
-      timeRemaining: timeRemaining ? formatTime(timeRemaining) : -1,
-      isTimerRunning,
-    });
   }
-});
+);
 
-function startTimer(workIntervalMinutes: number, breakIntervalMinutes: number) {
+function startTimer() {
+  console.log("Starting timmer");
+
   isTimerRunning = true;
   isWorkInterval = true;
   timeRemaining = timeRemainingAfterPause
     ? timeRemainingAfterPause
-    : workIntervalMinutes * 60; // Work interval in seconds
+    : focusTime * 60; // Work interval in seconds
 
   timer = setInterval(() => {
-    updateTimer(workIntervalMinutes, breakIntervalMinutes);
+    updateTimer(focusTime, breakTime);
   }, 1000);
 }
 
@@ -59,11 +83,10 @@ function formatTime(seconds: number) {
   ).padStart(2, "0")}`;
 }
 
-function updateTimer(
-  workIntervalMinutes: number,
-  breakIntervalMinutes: number
-) {
+function updateTimer(focusTime: number, breakTime: number) {
   if (timeRemaining > 0) {
+    console.log("Timer ticking....", timeRemaining);
+
     timeRemaining -= 1;
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
@@ -77,6 +100,8 @@ function updateTimer(
     });
 
     if (connectedPort) {
+      console.log("Sending timer", timeRemaining);
+
       connectedPort.postMessage({
         action: "timerUpdate",
         timerValue: formatTime(timeRemaining),
@@ -85,39 +110,47 @@ function updateTimer(
   } else {
     clearInterval(timer);
     isWorkInterval = !isWorkInterval;
-    timeRemaining = isWorkInterval
-      ? workIntervalMinutes * 60
-      : breakIntervalMinutes * 60;
+    timeRemaining = isWorkInterval ? focusTime * 60 : breakTime * 60;
 
     timer = setInterval(() => {
-      updateTimer(workIntervalMinutes, breakIntervalMinutes);
+      updateTimer(focusTime, breakTime);
     }, 1000);
   }
 }
 
-function updateBlockedWebsites(blockedWebsites: string[]) {
-  const newRules = blockedWebsites.map((website, index) => {
+async function updateBlockedSites(blockedSites: string[]) {
+  blockedSites = blockedSites;
+
+  const newRules = blockedSites.map((website, index) => {
     //Can probally refactor this, saw an example where we can declare that we auto remove old ID if we add same ID.
     const uniqueId = `${website.replace(/[^a-zA-Z0-9]/g, "")}_${index + 1}`;
     const hashedId = hashCode(uniqueId);
     return {
-      id: index + 1,
+      id: index + 1, // Rule ID must be >= 1
       priority: 1,
-      action: { type: "block" as chrome.declarativeNetRequest.RuleActionType },
+      action: {
+        type: "block" as chrome.declarativeNetRequest.RuleActionType,
+      },
       condition: {
-        urlFilter: ".*",
-        domainSuffix: website,
-        // domains: [website],
-
+        urlFilter: `||${website}`,
         resourceTypes: [
           "main_frame",
+          "sub_frame",
         ] as chrome.declarativeNetRequest.ResourceType[],
       },
     };
   });
+  updateRules(newRules);
+}
 
-  chrome.declarativeNetRequest.updateDynamicRules({
+async function updateRules(newRules?: chrome.declarativeNetRequest.Rule[]) {
+  const oldRules = await chrome.declarativeNetRequest.getDynamicRules();
+  const idsToDelete = oldRules.map((rule) => {
+    return rule.id;
+  });
+  await chrome.declarativeNetRequest.updateDynamicRules({
     addRules: newRules,
+    removeRuleIds: idsToDelete,
   });
 }
 

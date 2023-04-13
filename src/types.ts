@@ -1,16 +1,36 @@
 export interface StartMessage {
   action: "start";
-  workIntervalMinutes: number;
-  breakIntervalMinutes: number;
-  blockedWebsites: string[];
 }
 
 export interface StopMessage {
   action: "stop";
 }
 
-export interface GetRemainingTimeMessage {
-  action: "getRemainingTime";
+export interface GetCurrentStatusMessage {
+  action: "getCurrentStatus";
 }
 
-export type TimerMessage = StartMessage | StopMessage | GetRemainingTimeMessage;
+export interface GetCurrentStatusMessage {
+  action: "getCurrentStatus";
+}
+
+export interface GetCurrentStatusResponse {
+  focusTime: number;
+  breakTime: number;
+  isTimerRunning: boolean;
+  blockedSites: string[];
+  timeRemaining: number | string;
+}
+
+export interface UpdateSettings {
+  action: "updateSettings";
+  focusTime: number;
+  breakTime: number;
+  blockedSites: string[];
+}
+
+export type TimerMessage =
+  | StartMessage
+  | StopMessage
+  | GetCurrentStatusMessage
+  | UpdateSettings;

@@ -3,6 +3,7 @@ import Settings from "./components/Settings";
 import Timer from "./components/Timer";
 
 import "./index.css";
+import { GetCurrentStatusResponse, TimerMessage } from "./types";
 
 function App() {
   const [running, setRunning] = useState<boolean>(false);
@@ -10,31 +11,53 @@ function App() {
   const [timerValue, setTimerValue] = useState<string>("25:00");
   const [focusTime, setFocusTime] = useState(25);
   const [breakTime, setBreakTime] = useState(5);
+  const [blockedSites, setBlockedSites] = useState<string[]>([
+    "www.reddit.com",
+  ]);
   const [errorMessage, setErrorMessage] = useState("");
+  console.log("Default values", focusTime, breakTime, blockedSites);
 
-  // const requestRemainingTime = async () => {
-  //   chrome.runtime.sendMessage({ action: "getRemainingTime" }, (response) => {
-  //     if (response.timeRemaining && response.timeRemaining >= 0) {
-  //       setTimerValue(response.timeRemaining);
-  //     }
-  //     setRunning(response.isTimerRunning);
-  //   });
-  // };
+  const setTimerToFocusTime = (newFocusTime: number) => {
+    const timer = `${newFocusTime}:00`;
+    setTimerValue(timer); //default
+  };
 
-  // useEffect(() => {
-  //   requestRemainingTime();
-  //   const port = chrome.runtime.connect({ name: "pomodoroTimer" });
+  const fetchCurrentStatus = async () => {
+    chrome.runtime.sendMessage<TimerMessage, GetCurrentStatusResponse>(
+      { action: "getCurrentStatus" },
+      (response) => {
+        console.log("DATA RECIVED: ", response);
 
-  //   port.onMessage.addListener((message) => {
-  //     if (message.action === "timerUpdate") {
-  //       setTimerValue(message.timerValue);
-  //     }
-  //   });
+        setFocusTime(response.focusTime);
+        setBreakTime(response.breakTime);
+        setBlockedSites(response.blockedSites);
+        setRunning(response.isTimerRunning);
 
-  //   return () => {
-  //     port.disconnect();
-  //   };
-  // }, []);
+        if (response.timeRemaining && Number(response.timeRemaining) >= 0) {
+          setTimerValue(String(response.timeRemaining));
+        } else {
+          setTimerToFocusTime(response.focusTime);
+        }
+      }
+    );
+  };
+
+  useEffect(() => {
+    fetchCurrentStatus();
+    const port = chrome.runtime.connect({ name: "pomodoroTimer" });
+
+    port.onMessage.addListener((message) => {
+      if (message.action === "timerUpdate") {
+        console.log("Timer update recived");
+
+        setTimerValue(message.timerValue);
+      }
+    });
+
+    return () => {
+      port.disconnect();
+    };
+  }, []);
 
   const toggleTimer = (event: React.MouseEvent<HTMLButtonElement>) => {
     setRunning(!running);
@@ -49,16 +72,13 @@ function App() {
     setShowSettings(!showSettings);
 
   const startTimer = () => {
-    chrome.runtime.sendMessage({
+    chrome.runtime.sendMessage<TimerMessage>({
       action: "start",
-      workIntervalMinutes: 25,
-      breakIntervalMinutes: 5,
-      blockedWebsites: ["*://*.facebook.com/*"],
     });
   };
 
   const stopTimer = () => {
-    chrome.runtime.sendMessage({
+    chrome.runtime.sendMessage<TimerMessage>({
       action: "stop",
     });
   };
@@ -72,16 +92,28 @@ function App() {
   const saveChanges = (
     focusTime: number,
     breakTime: number,
-    blockedWebsites: string[]
+    blockedSites: string[]
   ) => {
     setFocusTime(focusTime);
     setBreakTime(breakTime);
-    chrome.runtime.sendMessage({
-      action: "updateBlockedSites",
-      blockedWebsites,
+    setBlockedSites(blockedSites);
+    setShowSettings(false);
+    setTimerToFocusTime(focusTime);
+    chrome.runtime.sendMessage<TimerMessage>({
+      action: "updateSettings",
+      focusTime,
+      breakTime,
+      blockedSites,
     });
   };
 
+  console.log(
+    "Values before rendining",
+    focusTime,
+    breakTime,
+    blockedSites,
+    timerValue
+  );
   return (
     <>
       {showSettings ? (
@@ -90,6 +122,7 @@ function App() {
           focusTime={focusTime}
           breakTime={breakTime}
           saveChanges={saveChanges}
+          blockedSites={blockedSites}
         />
       ) : (
         <Timer

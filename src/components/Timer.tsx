@@ -9,6 +9,8 @@ interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
 }
 const Timer = ({ timerValue, running, toggleTimer, toggleSettings }: Props) => {
+  console.log("Timers timerValue", timerValue);
+
   return (
     <Container>
       <div className='absolute top-4 right-4 text-4xl'>
