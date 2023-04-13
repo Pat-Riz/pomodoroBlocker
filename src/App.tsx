@@ -8,20 +8,9 @@ function App() {
   const [running, setRunning] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [timerValue, setTimerValue] = useState<string>("25:00");
-  const [focusTime, setFocusTime] = useState("");
+  const [focusTime, setFocusTime] = useState(25);
+  const [breakTime, setBreakTime] = useState(5);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    setFocusTime(value);
-
-    if (value === "" || isNaN(Number(value))) {
-      setErrorMessage("Please enter a valid number.");
-    } else {
-      setErrorMessage("");
-    }
-  };
 
   // const requestRemainingTime = async () => {
   //   chrome.runtime.sendMessage({ action: "getRemainingTime" }, (response) => {
@@ -80,10 +69,28 @@ function App() {
     // alert("DING DING DING");
   };
 
+  const saveChanges = (
+    focusTime: number,
+    breakTime: number,
+    blockedWebsites: string[]
+  ) => {
+    setFocusTime(focusTime);
+    setBreakTime(breakTime);
+    chrome.runtime.sendMessage({
+      action: "updateBlockedSites",
+      blockedWebsites,
+    });
+  };
+
   return (
     <>
       {showSettings ? (
-        <Settings toggleSettings={toggleSettings} />
+        <Settings
+          toggleSettings={toggleSettings}
+          focusTime={focusTime}
+          breakTime={breakTime}
+          saveChanges={saveChanges}
+        />
       ) : (
         <Timer
           timerValue={timerValue}
