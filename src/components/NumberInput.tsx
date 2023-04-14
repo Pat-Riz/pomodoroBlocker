@@ -1,3 +1,5 @@
+import Label from "./Label";
+
 interface Props {
   value: number;
   error: string;
@@ -9,12 +11,7 @@ interface Props {
 const NumberInput = ({ value, error, name, label, handleChange }: Props) => {
   return (
     <div className='w-full max-w-xs mx-auto'>
-      <label
-        className='block text-gray-700 text-sm font-bold mb-1'
-        htmlFor={name}
-      >
-        {label}
-      </label>
+      <Label htmlFor={name} label={label} />
       <input
         className='shadow appearance-none border rounded w-24 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
         id={name}

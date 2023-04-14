@@ -15,7 +15,6 @@ function App() {
     "www.reddit.com",
   ]);
   const [errorMessage, setErrorMessage] = useState("");
-  console.log("Default values", focusTime, breakTime, blockedSites);
 
   const setTimerToFocusTime = (newFocusTime: number) => {
     const timer = `${newFocusTime}:00`;
@@ -26,14 +25,14 @@ function App() {
     chrome.runtime.sendMessage<TimerMessage, GetCurrentStatusResponse>(
       { action: "getCurrentStatus" },
       (response) => {
-        console.log("DATA RECIVED: ", response);
-
         setFocusTime(response.focusTime);
         setBreakTime(response.breakTime);
         setBlockedSites(response.blockedSites);
         setRunning(response.isTimerRunning);
 
         if (response.timeRemaining && Number(response.timeRemaining) >= 0) {
+          console.log("Setting timeRemaing");
+
           setTimerValue(String(response.timeRemaining));
         } else {
           setTimerToFocusTime(response.focusTime);
@@ -42,22 +41,22 @@ function App() {
     );
   };
 
-  useEffect(() => {
-    fetchCurrentStatus();
-    const port = chrome.runtime.connect({ name: "pomodoroTimer" });
+  // useEffect(() => {
+  //   fetchCurrentStatus();
+  //   const port = chrome.runtime.connect({ name: "pomodoroTimer" });
 
-    port.onMessage.addListener((message) => {
-      if (message.action === "timerUpdate") {
-        console.log("Timer update recived");
+  //   port.onMessage.addListener((message) => {
+  //     if (message.action === "timerUpdate") {
+  //       console.log("Timer update recived");
 
-        setTimerValue(message.timerValue);
-      }
-    });
+  //       setTimerValue(message.timerValue);
+  //     }
+  //   });
 
-    return () => {
-      port.disconnect();
-    };
-  }, []);
+  //   return () => {
+  //     port.disconnect();
+  //   };
+  // }, []);
 
   const toggleTimer = (event: React.MouseEvent<HTMLButtonElement>) => {
     setRunning(!running);

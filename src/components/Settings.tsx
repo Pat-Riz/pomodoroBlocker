@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { KeyboardEventHandler, useState } from "react";
 import { MdSettings } from "react-icons/md";
 import Container from "./Container";
 import NumberInput from "./NumberInput";
+import Label from "./Label";
 
 interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
@@ -26,30 +27,19 @@ const Settings = ({
   const [breakTimeState, setBreakTimeState] = useState(breakTime);
   const [blockedSiteState, setBlockedSitesState] =
     useState<string[]>(blockedSites);
-  const [formData, setFormData] = useState({
-    focusTimeState: "",
-    breakTimeState: "",
-    blockedSiteState: [],
-  });
+  const [newBlockedSite, setNewBlockedSite] = useState("");
+  // const [formData, setFormData] = useState({
+  //   focusTimeState: "",
+  //   breakTimeState: "",
+  //   blockedSiteState: [],
+  // });
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
-  };
-
-  // setFocusTimeState(focusTime);
-  // setBreakTimeState(breakTime);
-  // setBlockedSitesState(blockedSites);
-
-  console.log("Values in settings", focusTime, breakTime, blockedSites);
-  console.log(
-    "State in settings",
-    focusTimeState,
-    breakTimeState,
-    blockedSiteState
-  );
+  // const handleChange = (
+  //   event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  // ) => {
+  //   const { name, value } = event.target;
+  //   setFormData((prevState) => ({ ...prevState, [name]: value }));
+  // };
 
   // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   const value = e.target.value;
@@ -70,11 +60,17 @@ const Settings = ({
   const updateBreak = (e: React.ChangeEvent<HTMLInputElement>) =>
     setBreakTimeState(Number(e.target.value));
 
-  const updateSites = (e: React.ChangeEvent<HTMLTextAreaElement>) =>
-    setBlockedSitesState([e.target.value]);
+  const updateSite = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setNewBlockedSite(e.target.value);
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setBlockedSitesState([...blockedSiteState, newBlockedSite]);
+    }
+  };
 
   return (
-    <div className='w-full h-full max-w-lg p-24 flex flex-col items-center bg-slate-400 text-black'>
+    <div className='w-full h-full max-w-lg p-12 flex flex-col items-center bg-slate-400 text-black'>
       <div className='flex gap-4 mb-4'>
         <NumberInput
           value={focusTimeState}
@@ -91,21 +87,41 @@ const Settings = ({
           handleChange={updateBreak}
         />
       </div>
-      <label
-        htmlFor='blockedSites'
-        className='block text-gray-700 text-sm font-bold mb-1'
-      >
-        Blocked sites
-      </label>
-      <textarea
-        className='w-full h-32 resize-none mb-4'
-        name='blockedSites'
-        value={blockedSiteState}
-        onChange={updateSites}
+      <Label htmlFor='blockedSites' label='Blocked sites' />
+      <input
+        type='text'
+        onKeyDown={handleKeyPress}
+        onChange={updateSite}
+        value={newBlockedSite}
+        placeholder='Enter website to block'
       />
+      <div className='flex gap-2 my-2 flex-wrap'>
+        {blockedSiteState.map((site, index) => {
+          return (
+            <>
+              <div className='text-white bg-blue-800 rounded pl-2'>
+                {site}
+                <button
+                  onClick={() => {
+                    setNewBlockedSite(".");
+                    setBlockedSitesState(
+                      blockedSiteState.filter(
+                        (currSite, currIndex) => index !== currIndex
+                      )
+                    );
+                  }}
+                  className='mx-2'
+                >
+                  X
+                </button>
+              </div>
+            </>
+          );
+        })}
+      </div>
       <div className='flex gap-4'>
         <button
-          className='bg-blue-500 hover:bg-blue-600 hover:shadow-md hover:scale-105 px-2 py-1 rounded'
+          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
           onClick={() =>
             saveChanges(focusTimeState, breakTimeState, blockedSiteState)
           }
@@ -113,7 +129,7 @@ const Settings = ({
           Save
         </button>
         <button
-          className='border border-blue-500 hover:shadow-md hover:scale-105 px-2 py-1 rounded'
+          className='hover:underline px-2 py-1 rounded text-white font-bold'
           onClick={toggleSettings}
         >
           Cancel
