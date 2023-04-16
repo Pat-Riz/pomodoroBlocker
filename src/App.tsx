@@ -51,14 +51,10 @@ function App() {
 
     port.onMessage.addListener((message) => {
       if (message.action === "timerUpdate") {
-        console.log("Timer update recived");
-
         setTimerValue(message.timerValue);
-        if (message.timerValue === "00:00") {
-          console.log("Timer is finished");
-          console.log(message);
+        setRunning(message.isTimerRunning);
 
-          setRunning(message.isTimerRunning);
+        if (message.timerValue === "00:00") {
           playTimerEndedSound();
         }
       }
