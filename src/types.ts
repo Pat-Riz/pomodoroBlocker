@@ -22,6 +22,7 @@ export interface GetCurrentStatusResponse {
   focusTime: number;
   breakTime: number;
   isTimerRunning: boolean;
+  isFocusTime: boolean;
   remainingTime: number;
   blockedSites: string[];
   timeRemaining: number | string;

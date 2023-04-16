@@ -3,7 +3,7 @@ import { sendMessageToPort } from "./messageHandler";
 let timer: number;
 let timeRemaining: number;
 let isTimerRunning = false;
-let isWorkInterval = true;
+let isFocusTime = true;
 let timeRemainingAfterPause: number | null = null;
 let focusTime: number = 0.2;
 let breakTime: number = 5;
@@ -21,7 +21,7 @@ export const startTimer = () => {
     isTimerRunning = true;
     timeRemaining = timeRemainingAfterPause
       ? timeRemainingAfterPause
-      : (isWorkInterval ? focusTime : breakTime) * 60; // Work interval in seconds
+      : (isFocusTime ? focusTime : breakTime) * 60; // Work interval in seconds
 
     timer = setInterval(() => {
       updateTimer(focusTime, breakTime);
@@ -37,9 +37,9 @@ export const stopTimer = () => {
 
 export const restartTimer = () => {
   stopTimer();
-  isWorkInterval = true;
+  isFocusTime = true;
   timeRemainingAfterPause = null;
-  timeRemaining = isWorkInterval ? focusTime * 60 : breakTime * 60;
+  timeRemaining = isFocusTime ? focusTime * 60 : breakTime * 60;
 };
 
 const updateTimer = (focusTime: number, breakTime: number) => {
@@ -53,23 +53,25 @@ const updateTimer = (focusTime: number, breakTime: number) => {
       .padStart(2, "0")}`;
     chrome.action.setBadgeText({ text: badgeText });
     chrome.action.setBadgeBackgroundColor({
-      color: isWorkInterval ? "#3b82f6" : "#6b7280",
+      color: isFocusTime ? "#3b82f6" : "#6b7280",
     });
 
     sendMessageToPort({
       action: "timerUpdate",
       timerValue: formatTime(timeRemaining),
       isTimerRunning,
+      isFocusTime,
     });
   } else {
     clearInterval(timer);
-    isWorkInterval = !isWorkInterval;
+    isFocusTime = !isFocusTime;
     isTimerRunning = false;
-    timeRemaining = isWorkInterval ? focusTime * 60 : breakTime * 60;
+    timeRemaining = isFocusTime ? focusTime * 60 : breakTime * 60;
     sendMessageToPort({
       action: "timerUpdate",
       timerValue: formatTime(timeRemaining),
       isTimerRunning,
+      isFocusTime,
     });
 
     // TODO: If Auto start break. Do this
@@ -93,5 +95,6 @@ export const getCurrentStatus = () => {
     isTimerRunning,
     focusTime,
     breakTime,
+    isFocusTime,
   };
 };

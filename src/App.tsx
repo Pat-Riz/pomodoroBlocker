@@ -14,6 +14,7 @@ function App() {
   const [blockedSites, setBlockedSites] = useState<string[]>([
     "www.reddit.com",
   ]);
+  const [isFocusTime, setIsFocusTime] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState("");
   const { playButtonClickSound, playTimerEndedSound } = useAudio();
 
@@ -53,6 +54,7 @@ function App() {
       if (message.action === "timerUpdate") {
         setTimerValue(message.timerValue);
         setRunning(message.isTimerRunning);
+        setIsFocusTime(message.isFocusTime);
 
         if (message.timerValue === "00:00") {
           playTimerEndedSound();
@@ -133,6 +135,7 @@ function App() {
           toggleTimer={toggleTimer}
           toggleSettings={toggleSettings}
           restartTimer={restartTimer}
+          isFocusTime={isFocusTime}
         />
       )}
     </>

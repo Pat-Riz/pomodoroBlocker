@@ -5,6 +5,7 @@ import Container from "./Container";
 interface Props {
   timerValue: string;
   running: boolean;
+  isFocusTime: boolean;
   toggleTimer(event: React.MouseEvent<HTMLButtonElement>): void;
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
   restartTimer(event: React.MouseEvent<HTMLButtonElement>): void;
@@ -12,6 +13,7 @@ interface Props {
 const Timer = ({
   timerValue,
   running,
+  isFocusTime,
   toggleTimer,
   toggleSettings,
   restartTimer,
@@ -20,6 +22,7 @@ const Timer = ({
 
   return (
     <Container>
+      <h3 className='text-white mb-8'>{isFocusTime ? "Focus!" : "Chill.."}</h3>
       <div className='absolute top-4 right-4 text-4xl'>
         <button className='' onClick={toggleSettings}>
           <MdSettings />
