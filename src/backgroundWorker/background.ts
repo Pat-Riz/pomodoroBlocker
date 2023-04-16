@@ -84,7 +84,7 @@ function formatTime(seconds: number) {
 }
 
 function updateTimer(focusTime: number, breakTime: number) {
-  if (timeRemaining > 0) {
+  if (timeRemaining >= 0) {
     console.log("Timer ticking....", timeRemaining);
 
     timeRemaining -= 1;
@@ -112,9 +112,10 @@ function updateTimer(focusTime: number, breakTime: number) {
     isWorkInterval = !isWorkInterval;
     timeRemaining = isWorkInterval ? focusTime * 60 : breakTime * 60;
 
-    timer = setInterval(() => {
-      updateTimer(focusTime, breakTime);
-    }, 1000);
+    // TODO: If Auto start break. Do this
+    // timer = setInterval(() => {
+    //   updateTimer(focusTime, breakTime);
+    // }, 1000);
   }
 }
 

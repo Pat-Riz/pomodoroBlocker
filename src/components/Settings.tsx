@@ -1,9 +1,8 @@
-import React, { KeyboardEventHandler, useState } from "react";
-import { MdSettings } from "react-icons/md";
-import Container from "./Container";
-import NumberInput from "./NumberInput";
+import React, { useState } from "react";
+import BlockedSitesTags from "./BlockedSitesTags";
 import Label from "./Label";
-
+import NumberInput from "./NumberInput";
+import ErrorText from "./ErrorText";
 interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
   focusTime: number;
@@ -15,6 +14,25 @@ interface Props {
     blockedSites: string[]
   ): void;
 }
+
+const urlWithoutProtocolRegex =
+  /^(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+([/?#]\S*)?$/;
+
+// const urlWithoutProtocol = yup
+//   .string()
+//   .matches(urlWithoutProtocolRegex, "Invalid URL")
+//   .required("Required");
+// const positiveNumber = yup
+//   .number()
+//   .integer("Number must be an integer")
+//   .min(1, "Number must be at least 1")
+//   .max(60, "Number cannot be greater than 60")
+//   .required("Number is required");
+
+// const schema = yup.object().shape({
+//   focusTime: positiveNumber,
+//   breakTime: positiveNumber,
+// });
 
 const Settings = ({
   toggleSettings,
@@ -28,6 +46,7 @@ const Settings = ({
   const [blockedSiteState, setBlockedSitesState] =
     useState<string[]>(blockedSites);
   const [newBlockedSite, setNewBlockedSite] = useState("");
+  const [urlError, setUrlError] = useState("");
   // const [formData, setFormData] = useState({
   //   focusTimeState: "",
   //   breakTimeState: "",
@@ -65,7 +84,30 @@ const Settings = ({
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      setBlockedSitesState([...blockedSiteState, newBlockedSite]);
+      if (urlWithoutProtocolRegex.test(newBlockedSite)) {
+        setBlockedSitesState([...blockedSiteState, newBlockedSite]);
+        setNewBlockedSite("");
+        setUrlError("");
+      } else {
+        setUrlError("Invalid url");
+      }
+    }
+  };
+
+  const handleTagDelete = (index: number) => {
+    setBlockedSitesState(
+      blockedSiteState.filter((currSite, currIndex) => index !== currIndex)
+    );
+  };
+
+  const validateAndSave = async () => {
+    try {
+      // await schema.validate({ focusTime, breakTime });
+      saveChanges(focusTimeState, breakTimeState, blockedSiteState);
+    } catch (err) {
+      // input is invalid
+      //@ts-ignore
+      console.error(err.errors);
     }
   };
 
@@ -87,44 +129,24 @@ const Settings = ({
           handleChange={updateBreak}
         />
       </div>
-      <Label htmlFor='blockedSites' label='Blocked sites' />
+      <Label htmlFor='blockedSites' label='Block website' />
       <input
         type='text'
+        className='w-52 mb-1'
         onKeyDown={handleKeyPress}
         onChange={updateSite}
         value={newBlockedSite}
-        placeholder='Enter website to block'
+        placeholder='Press enter to add'
       />
-      <div className='flex gap-2 my-2 flex-wrap'>
-        {blockedSiteState.map((site, index) => {
-          return (
-            <>
-              <div className='text-white bg-blue-800 rounded pl-2'>
-                {site}
-                <button
-                  onClick={() => {
-                    setNewBlockedSite(".");
-                    setBlockedSitesState(
-                      blockedSiteState.filter(
-                        (currSite, currIndex) => index !== currIndex
-                      )
-                    );
-                  }}
-                  className='mx-2'
-                >
-                  X
-                </button>
-              </div>
-            </>
-          );
-        })}
-      </div>
+      {urlError && <ErrorText error={urlError} />}
+      <BlockedSitesTags
+        blockedSites={blockedSiteState}
+        handleTagDelete={handleTagDelete}
+      />
       <div className='flex gap-4'>
         <button
           className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-          onClick={() =>
-            saveChanges(focusTimeState, breakTimeState, blockedSiteState)
-          }
+          onClick={() => validateAndSave()}
         >
           Save
         </button>

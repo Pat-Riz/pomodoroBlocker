@@ -1,3 +1,4 @@
+import ErrorText from "./ErrorText";
 import Label from "./Label";
 
 interface Props {
@@ -18,8 +19,11 @@ const NumberInput = ({ value, error, name, label, handleChange }: Props) => {
         type='number'
         value={value}
         onChange={handleChange}
+        min={0}
+        max={30}
+        onFocus={(e) => e.target.select()}
       />
-      {error && <p className='text-red-500 text-xs italic mt-1'>{error}</p>}
+      {error && <ErrorText error={error} />}
     </div>
   );
 };

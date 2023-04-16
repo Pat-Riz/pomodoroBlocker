@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Settings from "./components/Settings";
 import Timer from "./components/Timer";
-
+import useAudio from "./hooks/useAudio";
 import "./index.css";
 import { GetCurrentStatusResponse, TimerMessage } from "./types";
 
@@ -15,6 +15,7 @@ function App() {
     "www.reddit.com",
   ]);
   const [errorMessage, setErrorMessage] = useState("");
+  const { playButtonClickSound, playTimerEndedSound } = useAudio();
 
   const setTimerToFocusTime = (newFocusTime: number) => {
     const timer = `${newFocusTime}:00`;
@@ -41,24 +42,28 @@ function App() {
     );
   };
 
-  // useEffect(() => {
-  //   fetchCurrentStatus();
-  //   const port = chrome.runtime.connect({ name: "pomodoroTimer" });
+  useEffect(() => {
+    fetchCurrentStatus();
+    const port = chrome.runtime.connect({ name: "pomodoroTimer" });
 
-  //   port.onMessage.addListener((message) => {
-  //     if (message.action === "timerUpdate") {
-  //       console.log("Timer update recived");
+    port.onMessage.addListener((message) => {
+      if (message.action === "timerUpdate") {
+        console.log("Timer update recived");
 
-  //       setTimerValue(message.timerValue);
-  //     }
-  //   });
+        setTimerValue(message.timerValue);
+        if (message.timerValue === 0) {
+          playTimerEndedSound();
+        }
+      }
+    });
 
-  //   return () => {
-  //     port.disconnect();
-  //   };
-  // }, []);
+    return () => {
+      port.disconnect();
+    };
+  }, []);
 
   const toggleTimer = (event: React.MouseEvent<HTMLButtonElement>) => {
+    playButtonClickSound();
     setRunning(!running);
     if (!running) {
       startTimer();
