@@ -26,16 +26,19 @@ function App() {
     chrome.runtime.sendMessage<TimerMessage, GetCurrentStatusResponse>(
       { action: "getCurrentStatus" },
       (response) => {
+        console.log("--> CurrentStatus in CRA: ", response);
+
         setFocusTime(response.focusTime);
         setBreakTime(response.breakTime);
         setBlockedSites(response.blockedSites);
         setRunning(response.isTimerRunning);
 
-        if (response.timeRemaining && Number(response.timeRemaining) >= 0) {
+        if (response.timeRemaining) {
           console.log("Setting timeRemaing");
 
           setTimerValue(String(response.timeRemaining));
         } else {
+          console.log("Setting focusTime");
           setTimerToFocusTime(response.focusTime);
         }
       }
@@ -51,7 +54,11 @@ function App() {
         console.log("Timer update recived");
 
         setTimerValue(message.timerValue);
-        if (message.timerValue === 0) {
+        if (message.timerValue === "00:00") {
+          console.log("Timer is finished");
+          console.log(message);
+
+          setRunning(message.isTimerRunning);
           playTimerEndedSound();
         }
       }
@@ -81,16 +88,18 @@ function App() {
     });
   };
 
+  const restartTimer = () => {
+    setTimerToFocusTime(focusTime);
+    setRunning(false);
+    chrome.runtime.sendMessage<TimerMessage>({
+      action: "restart",
+    });
+  };
+
   const stopTimer = () => {
     chrome.runtime.sendMessage<TimerMessage>({
       action: "stop",
     });
-  };
-
-  const playSound = () => {
-    // const audio = new Audio("path/to/sound-file.mp3");
-    // audio.play();
-    // alert("DING DING DING");
   };
 
   const saveChanges = (
@@ -103,6 +112,7 @@ function App() {
     setBlockedSites(blockedSites);
     setShowSettings(false);
     setTimerToFocusTime(focusTime);
+    setRunning(false);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "updateSettings",
       focusTime,
@@ -110,14 +120,6 @@ function App() {
       blockedSites,
     });
   };
-
-  console.log(
-    "Values before rendining",
-    focusTime,
-    breakTime,
-    blockedSites,
-    timerValue
-  );
   return (
     <>
       {showSettings ? (
@@ -134,6 +136,7 @@ function App() {
           running={running}
           toggleTimer={toggleTimer}
           toggleSettings={toggleSettings}
+          restartTimer={restartTimer}
         />
       )}
     </>

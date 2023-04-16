@@ -6,6 +6,10 @@ export interface StopMessage {
   action: "stop";
 }
 
+export interface RestartMessage {
+  action: "restart";
+}
+
 export interface GetCurrentStatusMessage {
   action: "getCurrentStatus";
 }
@@ -33,5 +37,6 @@ export interface UpdateSettings {
 export type TimerMessage =
   | StartMessage
   | StopMessage
+  | RestartMessage
   | GetCurrentStatusMessage
   | UpdateSettings;

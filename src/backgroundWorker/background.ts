@@ -6,9 +6,22 @@ let isTimerRunning = false;
 let isWorkInterval = true;
 let connectedPort: chrome.runtime.Port | null = null;
 let timeRemainingAfterPause: number | null = null;
-let focusTime: number = 25;
+let focusTime: number = 0.2;
 let breakTime: number = 5;
 let blockedSites: string[] = ["reddit.com"];
+
+const stopTimer = () => {
+  clearInterval(timer);
+  isTimerRunning = false;
+  chrome.action.setBadgeText({ text: "" });
+  updateRules();
+};
+
+const restartTimer = () => {
+  stopTimer();
+  timeRemainingAfterPause = null;
+  timeRemaining = isWorkInterval ? focusTime * 60 : breakTime * 60;
+};
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "pomodoroTimer") {
@@ -36,16 +49,20 @@ chrome.runtime.onMessage.addListener(
         break;
       case "stop":
         if (isTimerRunning) {
-          clearInterval(timer);
-          isTimerRunning = false;
+          stopTimer();
           timeRemainingAfterPause = timeRemaining;
-          chrome.action.setBadgeText({ text: "" });
-          updateRules();
+        }
+        break;
+      case "restart":
+        if (isTimerRunning) {
+          restartTimer();
         }
         break;
       case "getCurrentStatus":
         sendResponse({
-          timeRemaining: timeRemaining ? formatTime(timeRemaining) : -1,
+          timeRemaining: timeRemaining
+            ? formatTime(timeRemaining)
+            : `${focusTime}:00`,
           isTimerRunning,
           focusTime,
           breakTime,
@@ -56,6 +73,7 @@ chrome.runtime.onMessage.addListener(
         focusTime = message.focusTime;
         breakTime = message.breakTime;
         updateBlockedSites(message.blockedSites);
+        restartTimer();
         break;
     }
   }
@@ -84,7 +102,7 @@ function formatTime(seconds: number) {
 }
 
 function updateTimer(focusTime: number, breakTime: number) {
-  if (timeRemaining >= 0) {
+  if (timeRemaining > 0) {
     console.log("Timer ticking....", timeRemaining);
 
     timeRemaining -= 1;
@@ -105,17 +123,30 @@ function updateTimer(focusTime: number, breakTime: number) {
       connectedPort.postMessage({
         action: "timerUpdate",
         timerValue: formatTime(timeRemaining),
+        isTimerRunning,
       });
     }
   } else {
+    //TODO: Refactor to use reset/stopTimer?
     clearInterval(timer);
     isWorkInterval = !isWorkInterval;
+    isTimerRunning = false;
     timeRemaining = isWorkInterval ? focusTime * 60 : breakTime * 60;
 
     // TODO: If Auto start break. Do this
     // timer = setInterval(() => {
     //   updateTimer(focusTime, breakTime);
     // }, 1000);
+
+    if (connectedPort) {
+      console.log("Sending timer", timeRemaining);
+
+      connectedPort.postMessage({
+        action: "timerUpdate",
+        timerValue: formatTime(timeRemaining),
+        isTimerRunning,
+      });
+    }
   }
 }
 
@@ -123,9 +154,6 @@ async function updateBlockedSites(blockedSites: string[]) {
   blockedSites = blockedSites;
 
   const newRules = blockedSites.map((website, index) => {
-    //Can probally refactor this, saw an example where we can declare that we auto remove old ID if we add same ID.
-    const uniqueId = `${website.replace(/[^a-zA-Z0-9]/g, "")}_${index + 1}`;
-    const hashedId = hashCode(uniqueId);
     return {
       id: index + 1, // Rule ID must be >= 1
       priority: 1,
@@ -153,16 +181,6 @@ async function updateRules(newRules?: chrome.declarativeNetRequest.Rule[]) {
     addRules: newRules,
     removeRuleIds: idsToDelete,
   });
-}
-
-function hashCode(s: string): number {
-  let hash = 0;
-  for (let i = 0; i < s.length; i++) {
-    const chr = s.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
 }
 
 export {};

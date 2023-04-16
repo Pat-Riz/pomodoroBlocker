@@ -1,5 +1,5 @@
 import React from "react";
-import { MdSettings } from "react-icons/md";
+import { MdSettings, MdRefresh } from "react-icons/md";
 import Container from "./Container";
 
 interface Props {
@@ -7,8 +7,15 @@ interface Props {
   running: boolean;
   toggleTimer(event: React.MouseEvent<HTMLButtonElement>): void;
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
+  restartTimer(event: React.MouseEvent<HTMLButtonElement>): void;
 }
-const Timer = ({ timerValue, running, toggleTimer, toggleSettings }: Props) => {
+const Timer = ({
+  timerValue,
+  running,
+  toggleTimer,
+  toggleSettings,
+  restartTimer,
+}: Props) => {
   console.log("Timers timerValue", timerValue);
 
   return (
@@ -19,12 +26,22 @@ const Timer = ({ timerValue, running, toggleTimer, toggleSettings }: Props) => {
         </button>
       </div>
       <div className='text-6xl mb-4'>{timerValue}</div>
-      <button
-        onClick={toggleTimer}
-        className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-      >
-        {running ? "PAUSE" : "START"}
-      </button>
+      {/* <div className=''> */}
+      <div className='relative'>
+        <button
+          onClick={toggleTimer}
+          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center'
+        >
+          {running ? "PAUSE" : "START"}
+        </button>
+        <button
+          className='absolute top-3 right-[-28px] text-black'
+          onClick={restartTimer}
+        >
+          <MdRefresh />
+        </button>
+      </div>
+      {/* </div> */}
     </Container>
   );
 };
