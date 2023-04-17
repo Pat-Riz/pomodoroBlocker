@@ -9,6 +9,10 @@ export async function updateBlockedSites(newBlockedSites: string[]) {
       priority: 1,
       action: {
         type: "block" as chrome.declarativeNetRequest.RuleActionType,
+        // type: "redirect" as chrome.declarativeNetRequest.RuleActionType,
+        // redirect: {
+        //   url: "https://www.cardsforfood.com",
+        // },
       },
       condition: {
         urlFilter: `||${website}`,

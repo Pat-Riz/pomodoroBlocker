@@ -6,7 +6,7 @@ interface Props extends LabelHTMLAttributes<HTMLLabelElement> {
 
 const Label = ({ label, ...rest }: Props) => {
   return (
-    <label className='block text-primary text-sm font-bold mb-1' {...rest}>
+    <label className='text-primary text-sm  mb-2' {...rest}>
       {label}
     </label>
   );

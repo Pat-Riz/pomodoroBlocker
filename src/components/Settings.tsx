@@ -3,6 +3,7 @@ import BlockedSitesTags from "./BlockedSitesTags";
 import Label from "./Label";
 import NumberInput from "./NumberInput";
 import ErrorText from "./ErrorText";
+import Container from "./Container";
 interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
   focusTime: number;
@@ -112,7 +113,7 @@ const Settings = ({
   };
 
   return (
-    <div className='w-full h-full max-w-lg p-12 flex flex-col items-center bg-focus'>
+    <Container>
       <div className='flex gap-4 mb-4'>
         <NumberInput
           value={focusTimeState}
@@ -129,10 +130,11 @@ const Settings = ({
           handleChange={updateBreak}
         />
       </div>
+      {/* <div className=''> */}
       <Label htmlFor='blockedSites' label='Block website' />
       <input
         type='text'
-        className='w-52 mb-1'
+        className='w-52 mb-1 p-1 text-black'
         onKeyDown={handleKeyPress}
         onChange={updateSite}
         value={newBlockedSite}
@@ -143,6 +145,7 @@ const Settings = ({
         blockedSites={blockedSiteState}
         handleTagDelete={handleTagDelete}
       />
+      {/* </div> */}
       <div className='flex gap-4 mt-2'>
         <button
           className='bg-primary hover:bg-primary-dark text-focus-dark font-bold py-2 px-4 rounded'
@@ -157,7 +160,7 @@ const Settings = ({
           Cancel
         </button>
       </div>
-    </div>
+    </Container>
   );
 };
 

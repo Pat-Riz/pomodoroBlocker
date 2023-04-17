@@ -15,7 +15,6 @@ function App() {
     "www.reddit.com",
   ]);
   const [isFocusTime, setIsFocusTime] = useState<boolean>(true);
-  const [errorMessage, setErrorMessage] = useState("");
   const { playButtonClickSound, playTimerEndedSound } = useAudio();
 
   const setTimerToFocusTime = (newFocusTime: number) => {
@@ -111,6 +110,7 @@ function App() {
     setShowSettings(false);
     setTimerToFocusTime(focusTime);
     setRunning(false);
+    setIsFocusTime(true);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "updateSettings",
       focusTime,

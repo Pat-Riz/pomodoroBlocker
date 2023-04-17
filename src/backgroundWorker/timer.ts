@@ -53,7 +53,7 @@ const updateTimer = (focusTime: number, breakTime: number) => {
       .padStart(2, "0")}`;
     chrome.action.setBadgeText({ text: badgeText });
     chrome.action.setBadgeBackgroundColor({
-      color: isFocusTime ? "#3b82f6" : "#6b7280",
+      color: isFocusTime ? "#487a99" : "#e69a38",
     });
 
     sendMessageToPort({
