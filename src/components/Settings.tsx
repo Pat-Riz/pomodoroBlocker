@@ -112,7 +112,7 @@ const Settings = ({
   };
 
   return (
-    <div className='w-full h-full max-w-lg p-12 flex flex-col items-center bg-slate-400 text-black'>
+    <div className='w-full h-full max-w-lg p-12 flex flex-col items-center bg-focus'>
       <div className='flex gap-4 mb-4'>
         <NumberInput
           value={focusTimeState}
@@ -143,15 +143,15 @@ const Settings = ({
         blockedSites={blockedSiteState}
         handleTagDelete={handleTagDelete}
       />
-      <div className='flex gap-4'>
+      <div className='flex gap-4 mt-2'>
         <button
-          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+          className='bg-primary hover:bg-primary-dark text-focus-dark font-bold py-2 px-4 rounded'
           onClick={() => validateAndSave()}
         >
           Save
         </button>
         <button
-          className='hover:underline px-2 py-1 rounded text-white font-bold'
+          className='hover:underline px-2 py-1 rounded text-primary font-bold'
           onClick={toggleSettings}
         >
           Cancel

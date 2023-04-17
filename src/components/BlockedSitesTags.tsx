@@ -13,7 +13,7 @@ const BlockedSitesTags = ({ blockedSites, handleTagDelete }: Props) => {
         return (
           <div
             key={index}
-            className='text-white text-sm bg-blue-800 rounded pl-1 flex opacity-70'
+            className='text-white text-sm bg-secondary rounded pl-1 flex opacity-70'
           >
             {site}
 

@@ -20,25 +20,26 @@ const Timer = ({
 }: Props) => {
   console.log("Timers timerValue", timerValue);
 
+  const textColor = isFocusTime ? "text-focus-dark" : "text-break-dark";
+
   return (
-    <Container>
-      <h3 className='text-white mb-8'>{isFocusTime ? "Focus!" : "Chill.."}</h3>
-      <div className='absolute top-4 right-4 text-4xl'>
+    <Container isFocusTime={isFocusTime}>
+      <div className='absolute top-4 right-4 text-3xl  text-primary hover:text-primary-dark'>
         <button className='' onClick={toggleSettings}>
           <MdSettings />
         </button>
       </div>
-      <div className='text-6xl mb-4'>{timerValue}</div>
+      <div className='text-6xl font-semibold mb-4'>{timerValue}</div>
       {/* <div className=''> */}
       <div className='relative'>
         <button
           onClick={toggleTimer}
-          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-center'
+          className={`bg-primary hover:bg-primary-dark font-bold py-2 px-4 rounded self-center ${textColor}`}
         >
           {running ? "PAUSE" : "START"}
         </button>
         <button
-          className='absolute top-3 right-[-28px] text-black'
+          className='absolute top-2 right-[-24px] text-lg text-primary hover:text-primary-dark'
           onClick={restartTimer}
         >
           <MdRefresh />
