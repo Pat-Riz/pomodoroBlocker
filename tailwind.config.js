@@ -14,7 +14,9 @@ export default {
       colors: {
         //https://lospec.com/palette-list/bitbybit
         focus: focusColor,
+        "focus-dark": focusDarkColor,
         break: breakColor,
+        "break-dark": breakDarkColor,
         primary,
         "primary-dark": primaryDark,
         secondary,

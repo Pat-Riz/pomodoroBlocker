@@ -8,11 +8,11 @@ export async function updateBlockedSites(newBlockedSites: string[]) {
       id: index + 1, // Rule ID must be >= 1
       priority: 1,
       action: {
-        type: "block" as chrome.declarativeNetRequest.RuleActionType,
-        // type: "redirect" as chrome.declarativeNetRequest.RuleActionType,
-        // redirect: {
-        //   url: "https://www.cardsforfood.com",
-        // },
+        // type: "block" as chrome.declarativeNetRequest.RuleActionType,
+        type: "redirect" as chrome.declarativeNetRequest.RuleActionType,
+        redirect: {
+          url: "https://pomodorolandingpage.vercel.app/shame",
+        },
       },
       condition: {
         urlFilter: `||${website}`,

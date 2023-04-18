@@ -1,3 +1,4 @@
+import { updateRules } from "./blockedSites";
 import { sendMessageToPort } from "./messageHandler";
 
 let timer: number;
@@ -30,6 +31,7 @@ export const startTimer = () => {
 };
 
 export const stopTimer = () => {
+  updateRules();
   clearInterval(timer);
   isTimerRunning = false;
   chrome.action.setBadgeText({ text: "" });
@@ -66,6 +68,7 @@ const updateTimer = (focusTime: number, breakTime: number) => {
     clearInterval(timer);
     isFocusTime = !isFocusTime;
     isTimerRunning = false;
+    updateRules();
     timeRemaining = isFocusTime ? focusTime * 60 : breakTime * 60;
     sendMessageToPort({
       action: "timerUpdate",

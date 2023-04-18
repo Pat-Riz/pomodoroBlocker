@@ -45,26 +45,26 @@ function App() {
     );
   };
 
-  useEffect(() => {
-    fetchCurrentStatus();
-    const port = chrome.runtime.connect({ name: "pomodoroTimer" });
+  // useEffect(() => {
+  //   fetchCurrentStatus();
+  //   const port = chrome.runtime.connect({ name: "pomodoroTimer" });
 
-    port.onMessage.addListener((message) => {
-      if (message.action === "timerUpdate") {
-        setTimerValue(message.timerValue);
-        setRunning(message.isTimerRunning);
-        setIsFocusTime(message.isFocusTime);
+  //   port.onMessage.addListener((message) => {
+  //     if (message.action === "timerUpdate") {
+  //       setTimerValue(message.timerValue);
+  //       setRunning(message.isTimerRunning);
+  //       setIsFocusTime(message.isFocusTime);
 
-        if (message.timerValue === "00:00") {
-          playTimerEndedSound();
-        }
-      }
-    });
+  //       if (message.timerValue === "00:00") {
+  //         playTimerEndedSound();
+  //       }
+  //     }
+  //   });
 
-    return () => {
-      port.disconnect();
-    };
-  }, []);
+  //   return () => {
+  //     port.disconnect();
+  //   };
+  // }, []);
 
   const toggleTimer = (event: React.MouseEvent<HTMLButtonElement>) => {
     playButtonClickSound();
