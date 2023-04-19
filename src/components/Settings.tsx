@@ -4,11 +4,13 @@ import Label from "./Label";
 import NumberInput from "./NumberInput";
 import ErrorText from "./ErrorText";
 import Container from "./Container";
+import Toggle from "./Toggle";
 interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
   focusTime: number;
   breakTime: number;
   blockedSites: string[];
+  isFocusTime: boolean;
   saveChanges(
     focusTime: number,
     breakTime: number,
@@ -40,6 +42,7 @@ const Settings = ({
   focusTime,
   breakTime,
   blockedSites,
+  isFocusTime,
   saveChanges,
 }: Props) => {
   const [focusTimeState, setFocusTimeState] = useState(focusTime);
@@ -113,52 +116,64 @@ const Settings = ({
   };
 
   return (
-    <Container>
-      <div className='flex gap-4 mb-4'>
-        <NumberInput
-          value={focusTimeState}
-          name='focusTime'
-          label='Focus time'
-          error=''
-          handleChange={updateFocus}
+    <Toggle
+      label={"Hej"}
+      defaultChecked={false}
+      onChange={function (isChecked: boolean): void {
+        throw new Error("Function not implemented.");
+      }}
+    />
+  );
+
+  return (
+    <Container isFocusTime={isFocusTime}>
+      <div className='m-4 h-full flex flex-col items-start '>
+        <div className='flex gap-4 mb-4'>
+          <NumberInput
+            value={focusTimeState}
+            name='focusTime'
+            label='Focus time'
+            error=''
+            handleChange={updateFocus}
+          />
+          <NumberInput
+            value={breakTimeState}
+            name='breakTime'
+            label='Break time'
+            error=''
+            handleChange={updateBreak}
+          />
+        </div>
+        {/* <div className=''> */}
+        <Label htmlFor='blockedSites' label='Block website' />
+        <input
+          type='text'
+          className='w-52 mb-1 p-1 text-black'
+          onKeyDown={handleKeyPress}
+          onChange={updateSite}
+          value={newBlockedSite}
+          placeholder='Press enter to add'
         />
-        <NumberInput
-          value={breakTimeState}
-          name='breakTime'
-          label='Break time'
-          error=''
-          handleChange={updateBreak}
+        {urlError && <ErrorText error={urlError} />}
+        <BlockedSitesTags
+          blockedSites={blockedSiteState}
+          handleTagDelete={handleTagDelete}
         />
-      </div>
-      {/* <div className=''> */}
-      <Label htmlFor='blockedSites' label='Block website' />
-      <input
-        type='text'
-        className='w-52 mb-1 p-1 text-black'
-        onKeyDown={handleKeyPress}
-        onChange={updateSite}
-        value={newBlockedSite}
-        placeholder='Press enter to add'
-      />
-      {urlError && <ErrorText error={urlError} />}
-      <BlockedSitesTags
-        blockedSites={blockedSiteState}
-        handleTagDelete={handleTagDelete}
-      />
-      {/* </div> */}
-      <div className='flex gap-4 mt-2'>
-        <button
-          className='bg-primary hover:bg-primary-dark text-focus-dark font-bold py-2 px-4 rounded'
-          onClick={() => validateAndSave()}
-        >
-          Save
-        </button>
-        <button
-          className='hover:underline px-2 py-1 rounded text-primary font-bold'
-          onClick={toggleSettings}
-        >
-          Cancel
-        </button>
+        {/* </div> */}
+        <div className='self-center justify-end flex gap-4 mt-2'>
+          <button
+            className='bg-primary hover:bg-primary-dark text-focus-dark font-bold py-2 px-4 rounded'
+            onClick={() => validateAndSave()}
+          >
+            Save
+          </button>
+          <button
+            className='hover:underline px-2 py-1 rounded text-primary font-bold'
+            onClick={toggleSettings}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </Container>
   );

@@ -130,6 +130,7 @@ function App() {
           breakTime={breakTime}
           saveChanges={saveChanges}
           blockedSites={blockedSites}
+          isFocusTime={isFocusTime}
         />
       ) : (
         <Timer
