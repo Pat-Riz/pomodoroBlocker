@@ -8,7 +8,7 @@ interface Props {
 
 const BlockedSitesTags = ({ blockedSites, handleTagDelete }: Props) => {
   return (
-    <div className='flex gap-1 my-2 flex-wrap'>
+    <div className='flex gap-1 my-2 flex-wrap max-h-28 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100'>
       {blockedSites.map((site, index) => {
         return (
           <div

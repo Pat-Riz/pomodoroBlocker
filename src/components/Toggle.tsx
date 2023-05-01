@@ -3,10 +3,11 @@ import React, { useState } from "react";
 interface ToggleProps {
   label: string;
   defaultChecked: boolean;
+  id: string;
   onChange: (isChecked: boolean) => void;
 }
 
-const Toggle = ({ label, defaultChecked, onChange }: ToggleProps) => {
+const Toggle = ({ label, defaultChecked, id, onChange }: ToggleProps) => {
   const [isChecked, setIsChecked] = useState<boolean>(defaultChecked);
 
   const toggle = () => {
@@ -17,27 +18,30 @@ const Toggle = ({ label, defaultChecked, onChange }: ToggleProps) => {
 
   return (
     <div className='flex items-center'>
-      <label htmlFor='toggle' className='flex items-center cursor-pointer'>
+      <label htmlFor={id} className='flex items-center cursor-pointer'>
         <div className='relative'>
           <input
-            id='toggle'
+            id={id}
             type='checkbox'
             className='sr-only'
             checked={isChecked}
             onChange={toggle}
           />
           <div
-            className={`block ${
-              isChecked ? "bg-blue-300" : "bg-gray-600"
-            }  w-[60px] h-8 rounded-full`}
+            className={`block transition-all duration-300 ${
+              isChecked ? "bg-blue-400" : "bg-gray-400"
+            }  w-9 h-4 rounded-full`}
           ></div>
           <div
             className={`${
-              isChecked ? "translate-x-8" : "translate-x-0"
-            } absolute left-0 top-0 bg-blue-500 h-8 w-8 rounded-full shadow-lg transition-all duration-300`}
+              isChecked ? "translate-x-6" : "translate-x-1"
+            } absolute left-[-5px] top-[-1px]  h-5 w-5 rounded-full shadow-lg transition-all duration-300 ${
+              isChecked ? "bg-blue-700" : "bg-gray-300"
+            }`}
           ></div>
         </div>
-        <div className='ml-3 text-gray-700 font-medium'>{label}</div>
+
+        <div className='ml-2 text-primary text-sm '>{label}</div>
       </label>
     </div>
   );

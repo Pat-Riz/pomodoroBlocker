@@ -12,7 +12,7 @@ const Container = ({ children, isFocusTime = true }: Props) => {
   const borderColor = isFocusTime ? "border-focus-dark" : "border-break-dark";
   return (
     <div
-      className={`w-96 h-96 text-primary overflow-auto relative shadow-lg ${bgColor} 
+      className={`w-[26rem] h-[26rem] text-primary relative shadow-lg ${bgColor} 
       border-2 ${borderColor}`}
     >
       {children}

@@ -6,6 +6,7 @@ interface Props {
   timerValue: string;
   running: boolean;
   isFocusTime: boolean;
+  isRunning: boolean;
   toggleTimer(event: React.MouseEvent<HTMLButtonElement>): void;
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
   restartTimer(event: React.MouseEvent<HTMLButtonElement>): void;
@@ -14,13 +15,17 @@ const Timer = ({
   timerValue,
   running,
   isFocusTime,
+  isRunning,
   toggleTimer,
   toggleSettings,
   restartTimer,
 }: Props) => {
-  console.log("Timers timerValue", timerValue);
-
   const textColor = isFocusTime ? "text-focus-dark" : "text-break-dark";
+  const helpfulMessage = !isRunning
+    ? ""
+    : isFocusTime
+    ? "Time to focus!"
+    : "Short break";
 
   return (
     <>
@@ -38,6 +43,9 @@ const Timer = ({
               <MdSettings />
             </button>
           </div>
+          <p className='text-xs font-extralight opacity-90 absolute top-32'>
+            {helpfulMessage}
+          </p>
           <div className='text-6xl font-semibold mb-4'>{timerValue}</div>
           <div className=''>
             <div className='relative'>

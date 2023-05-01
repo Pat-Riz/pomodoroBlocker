@@ -32,6 +32,8 @@ export interface UpdateSettings {
   action: "updateSettings";
   focusTime: number;
   breakTime: number;
+  autoPlayFocus: boolean;
+  autoPlayBreaks: boolean;
   blockedSites: string[];
 }
 

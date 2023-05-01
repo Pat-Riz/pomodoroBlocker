@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import BlockedSitesTags from "./BlockedSitesTags";
+import Container from "./Container";
+import ErrorText from "./ErrorText";
 import Label from "./Label";
 import NumberInput from "./NumberInput";
-import ErrorText from "./ErrorText";
-import Container from "./Container";
 import Toggle from "./Toggle";
 interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
@@ -11,31 +11,19 @@ interface Props {
   breakTime: number;
   blockedSites: string[];
   isFocusTime: boolean;
+  autoFocus: boolean;
+  autoBreak: boolean;
   saveChanges(
     focusTime: number,
     breakTime: number,
-    blockedSites: string[]
+    blockedSites: string[],
+    autoFocus: boolean,
+    autoBreak: boolean
   ): void;
 }
 
 const urlWithoutProtocolRegex =
   /^(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+([/?#]\S*)?$/;
-
-// const urlWithoutProtocol = yup
-//   .string()
-//   .matches(urlWithoutProtocolRegex, "Invalid URL")
-//   .required("Required");
-// const positiveNumber = yup
-//   .number()
-//   .integer("Number must be an integer")
-//   .min(1, "Number must be at least 1")
-//   .max(60, "Number cannot be greater than 60")
-//   .required("Number is required");
-
-// const schema = yup.object().shape({
-//   focusTime: positiveNumber,
-//   breakTime: positiveNumber,
-// });
 
 const Settings = ({
   toggleSettings,
@@ -44,38 +32,17 @@ const Settings = ({
   blockedSites,
   isFocusTime,
   saveChanges,
+  autoBreak,
+  autoFocus,
 }: Props) => {
   const [focusTimeState, setFocusTimeState] = useState(focusTime);
   const [breakTimeState, setBreakTimeState] = useState(breakTime);
   const [blockedSiteState, setBlockedSitesState] =
     useState<string[]>(blockedSites);
   const [newBlockedSite, setNewBlockedSite] = useState("");
+  const [autoPlayBreaksState, setAutoPlayBreaksState] = useState(autoBreak);
+  const [autoPlayFocusState, setAutoPlayFocusState] = useState(autoFocus);
   const [urlError, setUrlError] = useState("");
-  // const [formData, setFormData] = useState({
-  //   focusTimeState: "",
-  //   breakTimeState: "",
-  //   blockedSiteState: [],
-  // });
-
-  // const handleChange = (
-  //   event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  // ) => {
-  //   const { name, value } = event.target;
-  //   setFormData((prevState) => ({ ...prevState, [name]: value }));
-  // };
-
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value;
-  //   console.log("CHANGE", e.target.name);
-
-  //   setFocusTimeState(Number(value));
-
-  //   if (value === "" || isNaN(Number(value))) {
-  //     setErrorMessage("Please enter a valid number.");
-  //   } else {
-  //     setErrorMessage("");
-  //   }
-  // };
 
   const updateFocus = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFocusTimeState(Number(e.target.value));
@@ -107,7 +74,13 @@ const Settings = ({
   const validateAndSave = async () => {
     try {
       // await schema.validate({ focusTime, breakTime });
-      saveChanges(focusTimeState, breakTimeState, blockedSiteState);
+      saveChanges(
+        focusTimeState,
+        breakTimeState,
+        blockedSiteState,
+        autoPlayFocusState,
+        autoPlayBreaksState
+      );
     } catch (err) {
       // input is invalid
       //@ts-ignore
@@ -116,19 +89,10 @@ const Settings = ({
   };
 
   return (
-    <Toggle
-      label={"Hej"}
-      defaultChecked={false}
-      onChange={function (isChecked: boolean): void {
-        throw new Error("Function not implemented.");
-      }}
-    />
-  );
-
-  return (
     <Container isFocusTime={isFocusTime}>
-      <div className='m-4 h-full flex flex-col items-start '>
-        <div className='flex gap-4 mb-4'>
+      <div className='m-4 flex flex-col items-center'>
+        <h2 className='self-start text-bold text-lg'>Settings</h2>
+        <div className='flex gap-4 mb-2 '>
           <NumberInput
             value={focusTimeState}
             name='focusTime'
@@ -144,23 +108,39 @@ const Settings = ({
             handleChange={updateBreak}
           />
         </div>
-        {/* <div className=''> */}
-        <Label htmlFor='blockedSites' label='Block website' />
+        <div className=' flex flex-col my-2 gap-3'>
+          <Toggle
+            label='Auto Start Pomodoros'
+            id='autoFocusToggle'
+            defaultChecked={autoPlayFocusState}
+            onChange={(checked: boolean) => setAutoPlayFocusState(checked)}
+          />
+          <Toggle
+            label='Auto Start Breaks'
+            id='autoBreakToggle'
+            defaultChecked={autoPlayBreaksState}
+            onChange={(checked: boolean) => setAutoPlayBreaksState(checked)}
+          />
+        </div>
+        <div className='flex flex-col w-52 items-start'>
+          <Label htmlFor='blockedSites' label='Block website' />
+        </div>
         <input
           type='text'
-          className='w-52 mb-1 p-1 text-black'
+          className='shadow appearance-none border rounded h-10 w-52 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
           onKeyDown={handleKeyPress}
           onChange={updateSite}
           value={newBlockedSite}
           placeholder='Press enter to add'
         />
+
         {urlError && <ErrorText error={urlError} />}
         <BlockedSitesTags
           blockedSites={blockedSiteState}
           handleTagDelete={handleTagDelete}
         />
-        {/* </div> */}
-        <div className='self-center justify-end flex gap-4 mt-2'>
+
+        <div className='self-center justify-end flex gap-4 m-2'>
           <button
             className='bg-primary hover:bg-primary-dark text-focus-dark font-bold py-2 px-4 rounded'
             onClick={() => validateAndSave()}

@@ -6,8 +6,13 @@ let timeRemaining: number;
 let isTimerRunning = false;
 let isFocusTime = true;
 let timeRemainingAfterPause: number | null = null;
-let focusTime: number = 0.2;
+let focusTime: number = 25;
 let breakTime: number = 5;
+let autoPlayFocus: boolean = false;
+let autoPlayBreaks: boolean = false;
+const timerEndedSound = new Audio(
+  chrome.runtime.getURL("assets/timer_end.mp3")
+);
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -65,28 +70,40 @@ const updateTimer = (focusTime: number, breakTime: number) => {
       isFocusTime,
     });
   } else {
-    clearInterval(timer);
+    if (isFocusTime && autoPlayBreaks) {
+      console.log("Auto play breaks");
+    } else if (!isFocusTime && autoPlayFocus) {
+      console.log("Auto play focus");
+    } else {
+      console.log("Timer stopped");
+      clearInterval(timer);
+      isTimerRunning = false;
+      updateRules();
+    }
+
     isFocusTime = !isFocusTime;
-    isTimerRunning = false;
-    updateRules();
     timeRemaining = isFocusTime ? focusTime * 60 : breakTime * 60;
+
+    timerEndedSound.play();
     sendMessageToPort({
       action: "timerUpdate",
       timerValue: formatTime(timeRemaining),
       isTimerRunning,
       isFocusTime,
     });
-
-    // TODO: If Auto start break. Do this
-    // timer = setInterval(() => {
-    //   updateTimer(focusTime, breakTime);
-    // }, 1000);
   }
 };
 
-export const updateSettings = (newFocusTime: number, newBreakTime: number) => {
+export const updateSettings = (
+  newFocusTime: number,
+  newBreakTime: number,
+  autoFocus: boolean,
+  autoBreaks: boolean
+) => {
   focusTime = newFocusTime;
   breakTime = newBreakTime;
+  autoPlayFocus = autoFocus;
+  autoPlayBreaks = autoBreaks;
   restartTimer();
 };
 

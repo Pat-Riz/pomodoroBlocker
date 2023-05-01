@@ -1,4 +1,4 @@
-let blockedSites: string[] = ["reddit.com"];
+let blockedSites: string[] = ["reddit.com", "facebook.com", "twitter.com"];
 
 export async function updateBlockedSites(newBlockedSites: string[]) {
   blockedSites = newBlockedSites;
@@ -8,7 +8,6 @@ export async function updateBlockedSites(newBlockedSites: string[]) {
       id: index + 1, // Rule ID must be >= 1
       priority: 1,
       action: {
-        // type: "block" as chrome.declarativeNetRequest.RuleActionType,
         type: "redirect" as chrome.declarativeNetRequest.RuleActionType,
         redirect: {
           url: "https://pomodorolandingpage.vercel.app/shame",

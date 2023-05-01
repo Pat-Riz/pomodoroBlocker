@@ -1,3 +1,4 @@
+import { TimerMessage } from "../types";
 import { updateBlockedSites, getBlockedSites } from "./blockedSites";
 import {
   getCurrentStatus,
@@ -26,7 +27,7 @@ export const sendMessageToPort = (message: any) => {
 };
 
 const handleMessage = (
-  message: any,
+  message: TimerMessage,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void
 ) => {
@@ -41,7 +42,12 @@ const handleMessage = (
       restartTimer();
       break;
     case "updateSettings":
-      updateSettings(message.focusTime, message.breakTime);
+      updateSettings(
+        message.focusTime,
+        message.breakTime,
+        message.autoPlayFocus,
+        message.autoPlayBreaks
+      );
       updateBlockedSites(message.blockedSites);
       break;
     case "getCurrentStatus":

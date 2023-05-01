@@ -15,7 +15,12 @@ function App() {
     "www.reddit.com",
   ]);
   const [isFocusTime, setIsFocusTime] = useState<boolean>(true);
-  const { playButtonClickSound, playTimerEndedSound } = useAudio();
+  const [autoPlayBreaks, setAutoPlayBreaks] = useState(false);
+  const [autoPlayFocus, setAutoPlayFocus] = useState(false);
+
+  const { playButtonClickSound } = useAudio();
+  //THIS NEEDS TO BE DONE IN BACKGROUND SCRIPT.
+  // BECAUSE IF EXTENSION IS NOT OPEN NO SOUND IS PLAYED
 
   const setTimerToFocusTime = (newFocusTime: number) => {
     const timer = `${newFocusTime}:00`;
@@ -26,19 +31,14 @@ function App() {
     chrome.runtime.sendMessage<TimerMessage, GetCurrentStatusResponse>(
       { action: "getCurrentStatus" },
       (response) => {
-        console.log("--> CurrentStatus in CRA: ", response);
-
         setFocusTime(response.focusTime);
         setBreakTime(response.breakTime);
         setBlockedSites(response.blockedSites);
         setRunning(response.isTimerRunning);
 
         if (response.timeRemaining) {
-          console.log("Setting timeRemaing");
-
           setTimerValue(String(response.timeRemaining));
         } else {
-          console.log("Setting focusTime");
           setTimerToFocusTime(response.focusTime);
         }
       }
@@ -58,7 +58,7 @@ function App() {
           setIsFocusTime(message.isFocusTime);
 
           if (message.timerValue === "00:00") {
-            playTimerEndedSound();
+            //playTimerEndedSound();
           }
         }
       });
@@ -91,6 +91,7 @@ function App() {
   const restartTimer = () => {
     setTimerToFocusTime(focusTime);
     setRunning(false);
+    setIsFocusTime(true);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "restart",
     });
@@ -105,7 +106,9 @@ function App() {
   const saveChanges = (
     focusTime: number,
     breakTime: number,
-    blockedSites: string[]
+    blockedSites: string[],
+    autoFocus: boolean,
+    autoBreak: boolean
   ) => {
     setFocusTime(focusTime);
     setBreakTime(breakTime);
@@ -114,11 +117,15 @@ function App() {
     setTimerToFocusTime(focusTime);
     setRunning(false);
     setIsFocusTime(true);
+    setAutoPlayBreaks(autoBreak);
+    setAutoPlayFocus(autoFocus);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "updateSettings",
       focusTime,
       breakTime,
       blockedSites,
+      autoPlayFocus,
+      autoPlayBreaks,
     });
   };
   return (
@@ -128,6 +135,8 @@ function App() {
           toggleSettings={toggleSettings}
           focusTime={focusTime}
           breakTime={breakTime}
+          autoFocus={autoPlayFocus}
+          autoBreak={autoPlayBreaks}
           saveChanges={saveChanges}
           blockedSites={blockedSites}
           isFocusTime={isFocusTime}
@@ -140,6 +149,7 @@ function App() {
           toggleSettings={toggleSettings}
           restartTimer={restartTimer}
           isFocusTime={isFocusTime}
+          isRunning={running}
         />
       )}
     </>
