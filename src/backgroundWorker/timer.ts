@@ -116,5 +116,7 @@ export const getCurrentStatus = () => {
     focusTime,
     breakTime,
     isFocusTime,
+    autoPlayFocus,
+    autoPlayBreaks,
   };
 };

@@ -11,16 +11,12 @@ function App() {
   const [timerValue, setTimerValue] = useState<string>("25:00");
   const [focusTime, setFocusTime] = useState(25);
   const [breakTime, setBreakTime] = useState(5);
-  const [blockedSites, setBlockedSites] = useState<string[]>([
-    "www.reddit.com",
-  ]);
+  const [blockedSites, setBlockedSites] = useState<string[]>([]);
   const [isFocusTime, setIsFocusTime] = useState<boolean>(true);
   const [autoPlayBreaks, setAutoPlayBreaks] = useState(false);
   const [autoPlayFocus, setAutoPlayFocus] = useState(false);
 
   const { playButtonClickSound } = useAudio();
-  //THIS NEEDS TO BE DONE IN BACKGROUND SCRIPT.
-  // BECAUSE IF EXTENSION IS NOT OPEN NO SOUND IS PLAYED
 
   const setTimerToFocusTime = (newFocusTime: number) => {
     const timer = `${newFocusTime}:00`;
@@ -35,6 +31,8 @@ function App() {
         setBreakTime(response.breakTime);
         setBlockedSites(response.blockedSites);
         setRunning(response.isTimerRunning);
+        setAutoPlayBreaks(response.autoPlayBreaks);
+        setAutoPlayFocus(response.autoPlayFocus);
 
         if (response.timeRemaining) {
           setTimerValue(String(response.timeRemaining));
@@ -128,8 +126,8 @@ function App() {
       focusTime,
       breakTime,
       blockedSites,
-      autoPlayFocus,
-      autoPlayBreaks,
+      autoPlayFocus: autoFocus,
+      autoPlayBreaks: autoBreak,
     });
   };
   return (

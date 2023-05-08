@@ -30,6 +30,8 @@ export interface GetCurrentStatusResponse extends BaseMessage {
   remainingTime: number;
   blockedSites: string[];
   timeRemaining: number | string;
+  autoPlayFocus: boolean;
+  autoPlayBreaks: boolean;
 }
 
 export interface UpdateSettings extends BaseMessage {
