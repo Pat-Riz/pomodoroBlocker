@@ -29,7 +29,7 @@ function App() {
 
   const fetchCurrentStatus = async () => {
     chrome.runtime.sendMessage<TimerMessage, GetCurrentStatusResponse>(
-      { action: "getCurrentStatus" },
+      { action: "getCurrentStatus", target: "timer" },
       (response) => {
         setFocusTime(response.focusTime);
         setBreakTime(response.breakTime);
@@ -85,6 +85,7 @@ function App() {
   const startTimer = () => {
     chrome.runtime.sendMessage<TimerMessage>({
       action: "start",
+      target: "timer",
     });
   };
 
@@ -94,12 +95,14 @@ function App() {
     setIsFocusTime(true);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "restart",
+      target: "timer",
     });
   };
 
   const stopTimer = () => {
     chrome.runtime.sendMessage<TimerMessage>({
       action: "stop",
+      target: "timer",
     });
   };
 
@@ -121,6 +124,7 @@ function App() {
     setAutoPlayFocus(autoFocus);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "updateSettings",
+      target: "timer",
       focusTime,
       breakTime,
       blockedSites,

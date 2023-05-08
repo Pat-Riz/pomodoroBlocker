@@ -13,7 +13,11 @@
       "128": "Logo128.png"
     }
   },
-  "permissions": ["declarativeNetRequest", "declarativeNetRequestFeedback"],
+  "permissions": [
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback",
+    "offscreen"
+  ],
   "host_permissions": ["*://*/*"],
   "declarative_net_request": {
     "rule_resources": [

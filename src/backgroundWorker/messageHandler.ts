@@ -31,6 +31,10 @@ const handleMessage = (
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void
 ) => {
+  if (message.target === "offscreen") {
+    return false;
+  }
+
   switch (message.action) {
     case "start":
       startTimer();

@@ -1,24 +1,28 @@
-export interface StartMessage {
+export interface BaseMessage {
+  target: "offscreen" | "timer";
+}
+
+export interface StartMessage extends BaseMessage {
   action: "start";
 }
 
-export interface StopMessage {
+export interface StopMessage extends BaseMessage {
   action: "stop";
 }
 
-export interface RestartMessage {
+export interface RestartMessage extends BaseMessage {
   action: "restart";
 }
 
-export interface GetCurrentStatusMessage {
+export interface GetCurrentStatusMessage extends BaseMessage {
   action: "getCurrentStatus";
 }
 
-export interface GetCurrentStatusMessage {
+export interface GetCurrentStatusMessage extends BaseMessage {
   action: "getCurrentStatus";
 }
 
-export interface GetCurrentStatusResponse {
+export interface GetCurrentStatusResponse extends BaseMessage {
   focusTime: number;
   breakTime: number;
   isTimerRunning: boolean;
@@ -28,7 +32,7 @@ export interface GetCurrentStatusResponse {
   timeRemaining: number | string;
 }
 
-export interface UpdateSettings {
+export interface UpdateSettings extends BaseMessage {
   action: "updateSettings";
   focusTime: number;
   breakTime: number;
@@ -43,3 +47,9 @@ export type TimerMessage =
   | RestartMessage
   | GetCurrentStatusMessage
   | UpdateSettings;
+
+export interface OffscreenMessage extends BaseMessage {
+  action: "playSound";
+  volume: number;
+  source: string;
+}

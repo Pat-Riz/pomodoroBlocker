@@ -1,5 +1,7 @@
+import { OffscreenMessage } from "../types";
 import { updateRules } from "./blockedSites";
 import { sendMessageToPort } from "./messageHandler";
+import { playAudioInOffscreenDocument } from "./offscreen";
 
 let timer: number;
 let timeRemaining: number;
@@ -10,9 +12,6 @@ let focusTime: number = 25;
 let breakTime: number = 5;
 let autoPlayFocus: boolean = false;
 let autoPlayBreaks: boolean = false;
-const timerEndedSound = new Audio(
-  chrome.runtime.getURL("assets/timer_end.mp3")
-);
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -49,7 +48,7 @@ export const restartTimer = () => {
   timeRemaining = isFocusTime ? focusTime * 60 : breakTime * 60;
 };
 
-const updateTimer = (focusTime: number, breakTime: number) => {
+const updateTimer = async (focusTime: number, breakTime: number) => {
   if (timeRemaining > 0) {
     timeRemaining -= 1;
     const minutes = Math.floor(timeRemaining / 60);
@@ -84,13 +83,14 @@ const updateTimer = (focusTime: number, breakTime: number) => {
     isFocusTime = !isFocusTime;
     timeRemaining = isFocusTime ? focusTime * 60 : breakTime * 60;
 
-    timerEndedSound.play();
     sendMessageToPort({
       action: "timerUpdate",
       timerValue: formatTime(timeRemaining),
       isTimerRunning,
       isFocusTime,
     });
+
+    await playAudioInOffscreenDocument("timer_end.mp3", 1);
   }
 };
 
