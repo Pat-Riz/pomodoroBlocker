@@ -32,6 +32,7 @@ export interface GetCurrentStatusResponse extends BaseMessage {
   timeRemaining: number | string;
   autoPlayFocus: boolean;
   autoPlayBreaks: boolean;
+  volume: number;
 }
 
 export interface UpdateSettings extends BaseMessage {
@@ -41,6 +42,7 @@ export interface UpdateSettings extends BaseMessage {
   autoPlayFocus: boolean;
   autoPlayBreaks: boolean;
   blockedSites: string[];
+  volume: number;
 }
 
 export type TimerMessage =

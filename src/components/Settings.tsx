@@ -5,6 +5,7 @@ import ErrorText from "./ErrorText";
 import Label from "./Label";
 import NumberInput from "./NumberInput";
 import Toggle from "./Toggle";
+import Slider from "./Slider";
 interface Props {
   toggleSettings(event: React.MouseEvent<HTMLButtonElement>): void;
   focusTime: number;
@@ -13,12 +14,14 @@ interface Props {
   isFocusTime: boolean;
   autoFocus: boolean;
   autoBreak: boolean;
+  volume: number;
   saveChanges(
     focusTime: number,
     breakTime: number,
     blockedSites: string[],
     autoFocus: boolean,
-    autoBreak: boolean
+    autoBreak: boolean,
+    volume: number
   ): void;
 }
 
@@ -34,6 +37,7 @@ const Settings = ({
   saveChanges,
   autoBreak,
   autoFocus,
+  volume,
 }: Props) => {
   const [focusTimeState, setFocusTimeState] = useState(focusTime);
   const [breakTimeState, setBreakTimeState] = useState(breakTime);
@@ -43,6 +47,7 @@ const Settings = ({
   const [autoPlayBreaksState, setAutoPlayBreaksState] = useState(autoBreak);
   const [autoPlayFocusState, setAutoPlayFocusState] = useState(autoFocus);
   const [urlError, setUrlError] = useState("");
+  const [volumeState, setVolume] = useState(volume);
 
   const updateFocus = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFocusTimeState(Number(e.target.value));
@@ -52,6 +57,9 @@ const Settings = ({
 
   const updateSite = (e: React.ChangeEvent<HTMLInputElement>) =>
     setNewBlockedSite(e.target.value);
+
+  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setVolume(Number(event.target.value));
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -79,7 +87,8 @@ const Settings = ({
         breakTimeState,
         blockedSiteState,
         autoPlayFocusState,
-        autoPlayBreaksState
+        autoPlayBreaksState,
+        volumeState
       );
     } catch (err) {
       // input is invalid
@@ -107,6 +116,9 @@ const Settings = ({
             error=''
             handleChange={updateBreak}
           />
+        </div>
+        <div className='w-52'>
+          <Slider value={volumeState} onChange={handleVolumeChange} />
         </div>
         <div className=' flex flex-col my-2 gap-3'>
           <Toggle

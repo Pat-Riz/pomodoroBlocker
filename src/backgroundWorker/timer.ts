@@ -12,6 +12,7 @@ let focusTime: number = 25;
 let breakTime: number = 5;
 let autoPlayFocus: boolean = false;
 let autoPlayBreaks: boolean = false;
+let volume: number = 3;
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -90,7 +91,12 @@ const updateTimer = async (focusTime: number, breakTime: number) => {
       isFocusTime,
     });
 
-    await playAudioInOffscreenDocument("timer_end.mp3", 1);
+    //Volume in settings is 1-5. Volume in chrome is 0,1 - 1.0.
+    let chromeVolume = (volume * 2) / 10;
+    if (volume === 1) {
+      chromeVolume = 0.1;
+    }
+    await playAudioInOffscreenDocument("timer_end.mp3", chromeVolume);
   }
 };
 
@@ -98,12 +104,14 @@ export const updateSettings = (
   newFocusTime: number,
   newBreakTime: number,
   autoFocus: boolean,
-  autoBreaks: boolean
+  autoBreaks: boolean,
+  newVolume: number
 ) => {
   focusTime = newFocusTime;
   breakTime = newBreakTime;
   autoPlayFocus = autoFocus;
   autoPlayBreaks = autoBreaks;
+  volume = newVolume;
   restartTimer();
 };
 
@@ -118,5 +126,6 @@ export const getCurrentStatus = () => {
     isFocusTime,
     autoPlayFocus,
     autoPlayBreaks,
+    volume,
   };
 };

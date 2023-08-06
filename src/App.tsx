@@ -15,6 +15,7 @@ function App() {
   const [isFocusTime, setIsFocusTime] = useState<boolean>(true);
   const [autoPlayBreaks, setAutoPlayBreaks] = useState(false);
   const [autoPlayFocus, setAutoPlayFocus] = useState(false);
+  const [volume, setVolume] = useState(3);
 
   const { playButtonClickSound } = useAudio();
 
@@ -33,6 +34,7 @@ function App() {
         setRunning(response.isTimerRunning);
         setAutoPlayBreaks(response.autoPlayBreaks);
         setAutoPlayFocus(response.autoPlayFocus);
+        setVolume(response.volume);
 
         if (response.timeRemaining) {
           setTimerValue(String(response.timeRemaining));
@@ -109,7 +111,8 @@ function App() {
     breakTime: number,
     blockedSites: string[],
     autoFocus: boolean,
-    autoBreak: boolean
+    autoBreak: boolean,
+    volume: number
   ) => {
     setFocusTime(focusTime);
     setBreakTime(breakTime);
@@ -120,6 +123,7 @@ function App() {
     setIsFocusTime(true);
     setAutoPlayBreaks(autoBreak);
     setAutoPlayFocus(autoFocus);
+    setVolume(volume);
     chrome.runtime.sendMessage<TimerMessage>({
       action: "updateSettings",
       target: "timer",
@@ -128,6 +132,7 @@ function App() {
       blockedSites,
       autoPlayFocus: autoFocus,
       autoPlayBreaks: autoBreak,
+      volume,
     });
   };
   return (
@@ -142,6 +147,7 @@ function App() {
           saveChanges={saveChanges}
           blockedSites={blockedSites}
           isFocusTime={isFocusTime}
+          volume={volume}
         />
       ) : (
         <Timer

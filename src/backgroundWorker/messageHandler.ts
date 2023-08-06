@@ -50,7 +50,8 @@ const handleMessage = (
         message.focusTime,
         message.breakTime,
         message.autoPlayFocus,
-        message.autoPlayBreaks
+        message.autoPlayBreaks,
+        message.volume
       );
       updateBlockedSites(message.blockedSites);
       break;
